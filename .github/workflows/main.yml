@@ -19,17 +19,17 @@ jobs:
         
     - name: publish
       run: |
-        cd src
+        cd Lab3
         dotnet publish -c release
       
     - name: Change base-tag in index.html from / to the necessary
-      run: sed -i 's/<base href="\/" \/>/<base href="\/TypeInfo\/" \/>/g' ./src/bin/release/net5.0/publish/wwwroot/index.html
+      run: sed -i 's/<base href="\/" \/>/<base href="\/TypeInfo\/" \/>/g' ./Lab3/bin/release/net5.0/publish/wwwroot/index.html
       
     - name: Add .nojekyll file
-      run: touch ./src/bin/release/net5.0/publish/wwwroot/.nojekyll
+      run: touch ./Lab3/bin/release/net5.0/publish/wwwroot/.nojekyll
       
     - uses: JamesIves/github-pages-deploy-action@4.1.4
       name: gh-pages publish
       with:
         branch: gh-pages
-        folder: ./src/bin/release/net5.0/publish/wwwroot
+        folder: ./Lab3/bin/release/net5.0/publish/wwwroot
