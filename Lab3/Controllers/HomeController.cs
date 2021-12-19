@@ -19,33 +19,74 @@ namespace Lab3.Controllers
             _logger = logger;
         }
 
-            public async Task<ActionResult> Index(NotificationBarModel notificationBarModel)
-            {
-                return View(notificationBarModel);
-            }
+        public async Task<ActionResult> Index(NotificationBarModel notificationBarModel)
+        {
+            return View(notificationBarModel);
+        }
 
-            [HttpPost]
-            public async Task<ActionResult> SaveNotificationText(NotificationBarModel notificationBarModel)
-            {
-                string fullFileName = "db.txt";
-                StreamWriter streamWriter =
-                    new StreamWriter(new FileStream(fullFileName, FileMode.Create, FileAccess.Write));
-                streamWriter.Write(notificationBarModel.Content);
-                streamWriter.Close();
-                return RedirectToAction("Index", notificationBarModel);
-            }
+        [HttpPost]
+        public async Task<ActionResult> SaveNotificationText(NotificationBarModel notificationBarModel)
+        {
+            string fullFileName = "db.txt";
+            StreamWriter streamWriter =
+                new StreamWriter(new FileStream(fullFileName, FileMode.Create, FileAccess.Write));
+            streamWriter.Write(notificationBarModel.Content);
+            streamWriter.Close();
+            return RedirectToAction("Index", notificationBarModel);
+        }
 
-            public ActionResult Page2()
+        [HttpGet]
+        [Route("/savetext/{text}")]
+        public async Task<ActionResult> SaveText(string text)
+        {
+            string fullFileName = "db.txt";
+            StreamWriter streamWriter =
+                new StreamWriter(fullFileName, append: true);
+            streamWriter.WriteLine(text);
+            streamWriter.Close();
+            return NoContent();
+        }
+
+        [HttpGet]
+        [Route("/gettext")]
+        public async Task<string> GetText()
+        {
+            string fullFileName = "db.txt";
+            StreamReader streamWriter =
+                new StreamReader(fullFileName);
+            var text = streamWriter.ReadToEnd();
+            streamWriter.Close();
+
+            StreamWriter s =
+                new StreamWriter(fullFileName);
+            s.Write("");
+            s.Close();
+            return text;
+        }
+
+
+        [HttpGet]
+        [Route("/clear")]
+        public async Task Clear()
+        {
+            string fullFileName = "db.txt";
+            StreamWriter s =
+                new StreamWriter(fullFileName);
+            s.Write("");
+            s.Close();
+        }
+
+        public ActionResult Page2()
+        {
+            string fullFileName = "db.txt";
+            StreamReader streamReader =
+                new StreamReader(new FileStream(fullFileName, FileMode.Open, FileAccess.Read));
+            var content = streamReader.ReadToEnd();
+            streamReader.Close();
+            return View(new NotificationBarModel()
             {
-                string fullFileName = "db.txt";
-                StreamReader streamReader =
-                    new StreamReader(new FileStream(fullFileName, FileMode.Open, FileAccess.Read));
-                var content = streamReader.ReadToEnd();
-                streamReader.Close();
-                return View(new NotificationBarModel()
-                {
-                    Content = content
-                });
-            }
+                Content = content
+            });
+        }
     }
 }

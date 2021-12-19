@@ -1,1 +1,17 @@
-Yarik
+move left
+move up
+move right
+move down
+move left
+move up
+move right
+move down
+move left
+move up
+move right
+move down
+move left
+move up
+move right
+move down
+move left
