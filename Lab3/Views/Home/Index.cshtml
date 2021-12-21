@@ -3,7 +3,10 @@
 <div class="grid-container">
 
     <div class="head under">
-
+        <ul class="nav navbar-nav">
+            <li>@Html.ActionLink("Домашняя страница", "Index", "Home")</li>
+            <li>@Html.ActionLink("Вторая страница", "Page2", "Home")</li>
+        </ul>
         <ol id="header-list"></ol>
     </div>
     <div class="main-center">
@@ -17,7 +20,7 @@
                 <input type="button" id="move" value="start">
                 <input type="button" id="close" value="close">
             </div>
-            <div class="anim">
+            <div id="anim"class="anim">
                 <canvas class="anim-canvas" id="canvas"></canvas>
             </div>
         </div>
@@ -60,22 +63,6 @@
         function getCanvasImage(mainCanvas) {
             mainCanvas.style.backgroundImage = `url(./dog.svg)`
 
-            //var canvas = document.createElement('canvas');
-            //canvas.width = 64;
-            //canvas.height = 64;
-            //var context = canvas.getContext('2d');
-            //const mainContext = mainCanvas.getContext('2d');
-            //let imageName = "dog.svg";
-            //var imageObj = new Image();
-            //imageObj.src = imageName;
-            //imageObj.onload = function () {
-            //    mainContext.drawImage(imageObj, 0, 0);
-            //    //context.drawImage(imageObj, 32, 0);
-            //    //context.drawImage(imageObj, 0, 32);
-            //    //context.drawImage(imageObj, 32, 32);
-            //    //console.log(canvas.getImageData())
-            //    //let t = context.getImageData(0, 0, 64, 64)
-            //};
 
         }
 
@@ -185,12 +172,18 @@
 
         // OP's code
         var canvas = document.getElementById("canvas");
-        width = canvas.width;
-        height = canvas.height;
+        var animArea = document.getElementById("anim");
+        width = animArea.clientWidth;
+        height = animArea.clientHeight;
+        canvas.width = animArea.clientWidth;
+        canvas.height = animArea.clientHeight;
+        canvas.style.width = animArea.clientWidth + "px";
+        canvas.style.height = animArea.clientHeight + "px";
+        console.log(canvas.style.height);
         x = width / 2;
         y = height / 2;
-        console.log(width)
-        console.log(height)
+        console.log(width);
+        console.log(height);
         getCanvasImage(canvas);
         var ctx = canvas.getContext("2d");
 

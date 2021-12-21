@@ -1,15 +1,5 @@
 ﻿@model Lab3.Models.NotificationBarModel
 
-<div id="barwrap">
-    <div class="bar">
-        <span id="head-image"><img src="img/authkey.png" alt=""></span>
-        <span id="text">@Model.Content</span>
-        <span id="otherimg"></span>
-        <span id="ok"><a href="#">Dismiss</a></span>
-    </div>
-</div>
-
-
 <div class="grid-container">
 
     <div class="head under">
@@ -21,8 +11,20 @@
     </div>
     <div class="main-center">
         <ol id="main-center-list"></ol>
+        <input type="button" id="play" value="play">
     </div>
     <div class="main" id="main">
+        <div class="work" id="work">
+            <div class="controls" style="text-align: center">
+                <label id="label"></label>
+                <input type="button" id="move" value="start">
+                <input type="button" id="close" value="close">
+            </div>
+            <div id="anim" class="anim">
+                <canvas class="anim-canvas" id="canvas"></canvas>
+            </div>
+        </div>
+
     </div>
     <div class="right-bottom">
         <p>
@@ -33,6 +35,7 @@
         <p>
             <ol id="right-top-list"></ol>
         </p>
+        <textarea id="right-label"></textarea>
     </div>
     <div class="left under" id="left">
         <ol id="left-list"></ol>
@@ -43,19 +46,163 @@
 
 </div>
 
+
 <script>
     $(function A() {
-        setTimeout(function () {
-            return $(".bar").animate({
-                height: "toggle"
-            }, "slow")
-        }, 450);
-        return $("#ok").on("click", function () {
-            $("#barwrap").css("margin-bottom", "0px");
-            $(".bar").animate({
-                height: "toggle"
-            }, "slow");
-            return !1
-        })
+        let label = document.getElementById("label")
+        let rightLabel = document.getElementById("right-label")
+        function setLabel(text) {
+            label.innerHTML = text;
+            $.ajax({
+                url: 'savetext/' + text,
+            }).done(function () {
+
+            });
+        }
+
+        function getCanvasImage(mainCanvas) {
+            mainCanvas.style.backgroundImage = `url(./dog.svg)`
+
+
+        }
+
+        var x = 10;
+        var y = 10;
+        var r = 10;
+        var step = 1;
+        var deltaT = 0;
+        var width = 0;
+        var height = 0;
+        var moveType = 1;
+        var mover = 0;
+        var stop = false;
+        function anim() {
+            if (moveType % 4 === 1) {
+                x--;
+            } else {
+                if (moveType % 4 === 2) {
+                    y--;
+                } else {
+                    if (moveType % 4 === 3) {
+                        x++;
+                    } else {
+                        y++;
+                    }
+                }
+            }
+            mover++;
+            if (mover === step) {
+                mover = 0;
+                step++;
+                moveType++;
+                if (moveType % 4 === 1) {
+                    setLabel("move left")
+                } else {
+                    if (moveType % 4 === 2) {
+                        setLabel("move up")
+                    } else {
+                        if (moveType % 4 === 3) {
+                            setLabel("move right")
+                        } else {
+                            setLabel("move down")
+                        }
+                    }
+                }
+            }
+            deltaT++;
+
+            if (x + r > width || y + r > height || x - r < 0 || y - r < 0 || stop) { // this means we ended our animation
+
+                draw(x, y); // draw the last frame, at required position
+                //document.getElementById('move').disabled = false;
+
+            } else {
+                draw(x, y);
+                requestAnimationFrame(anim); // do it again
+            }
+        }
+
+        move.onclick = e => {
+
+            x = width / 2;
+            y = height / 2;
+            step = 1;
+            r = 10;
+            deltaT = 0;
+            mover = 0;
+            moveType = 1;
+            console.log(x)
+            console.log(y);
+            if (move.value === "reload") {
+                setLabel("reload click")
+                draw(x, y);
+                move.value = "start";
+                stop = true;
+            } else {
+                move.value = "reload";
+                setLabel("start click")
+                stop = false;
+                anim();
+            }
+
+        }
+        let close = document.getElementById("close")
+        let work = document.getElementById("work")
+        close.onclick = e => {
+            work.style.visibility = 'hidden';
+            setLabel("close click");
+
+            $.ajax({
+                url: 'gettext',
+            }).done(function (data) {
+                rightLabel.value = data
+            });
+        }
+
+        let play = document.getElementById("play")
+        play.onclick = e => {
+            work.style.visibility = 'visible';
+            $.ajax({
+                url: 'clear',
+            }).done(function (data) {
+                rightLabel.value = data
+            });
+            setLabel("play click")
+        }
+
+        // OP's code
+        var canvas = document.getElementById("canvas");
+        var animArea = document.getElementById("anim");
+        width = animArea.clientWidth;
+        height = animArea.clientHeight;
+        canvas.width = animArea.clientWidth;
+        canvas.height = animArea.clientHeight;
+        canvas.style.width = animArea.clientWidth + "px";
+        canvas.style.height = animArea.clientHeight + "px";
+        console.log(canvas.style.height);
+        x = width / 2;
+        y = height / 2;
+        console.log(width);
+        console.log(height);
+        getCanvasImage(canvas);
+        var ctx = canvas.getContext("2d");
+
+        function circle(x, y, r) {
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2, true);
+            ctx.fill();
+        }
+
+        function clear() {
+            ctx.clearRect(0, 0, width, height);
+        }
+
+        function draw(x, y) {
+            clear(width, height);
+            ctx.fillStyle = "green";
+            circle(x, y, r);
+        }
+
+        draw(x, y);
     });
 </script>
