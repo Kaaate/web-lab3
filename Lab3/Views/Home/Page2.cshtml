@@ -2,14 +2,14 @@
 
 <div class="grid-container">
 
-    <div class="head under">
+    <div class="head under" id="head">
         <ul class="nav navbar-nav">
             <li>@Html.ActionLink("Домашняя страница", "Index", "Home")</li>
             <li>@Html.ActionLink("Вторая страница", "Page2", "Home")</li>
         </ul>
         <ol id="header-list"></ol>
     </div>
-    <div class="main-center">
+    <div class="main-center" id="main-center">
         <ol id="main-center-list"></ol>
         <input type="button" id="play" value="play">
     </div>
@@ -20,11 +20,10 @@
                 <input type="button" id="move" value="start">
                 <input type="button" id="close" value="close">
             </div>
-            <div id="anim" class="anim">
-                <canvas class="anim-canvas" id="canvas"></canvas>
-            </div>
+            <img id="anim" class="anim" src="~/dog.svg">
+                <div id="animate"></div>
+            </img>
         </div>
-
     </div>
     <div class="right-bottom">
         <p>
@@ -49,33 +48,45 @@
 
 <script>
     $(function A() {
-        let label = document.getElementById("label")
-        let rightLabel = document.getElementById("right-label")
+        let id = null;
+        let animation = document.getElementById("animate");
+        let label = document.getElementById("label");
+        let rightLabel = document.getElementById("right-label");
+        var x = 10;
+        var y = 10;
+        var r = 10;
+        var step = 1;
+        var width = 0;
+        var height = 0;
+        var moveType = 1;
+        var mover = 0;
+        var stop = false;
+        let close = document.getElementById("close");
+        let work = document.getElementById("work");
+        let play = document.getElementById("play");
+        var animArea = document.getElementById("anim");
+        width = animArea.clientWidth;
+        height = animArea.clientHeight;
+        let xOffset = document.getElementById("head").clientHeight + document.getElementById("main-center").clientHeight + 50;
+        let yOffset = document.getElementById("left").clientWidth;
+        x = height / 2 + xOffset;
+        y = width / 2 + yOffset;
+        console.log(x);
+        console.log(y);
+
         function setLabel(text) {
             label.innerHTML = text;
             $.ajax({
-                url: 'savetext/' + text,
+                url: '/savetext/' + text,
             }).done(function () {
 
             });
         }
 
         function getCanvasImage(mainCanvas) {
-            mainCanvas.style.backgroundImage = `url(./dog.svg)`
-
-
+            mainCanvas.style.backgroundImage = `url(./dog.svg)`;
         }
 
-        var x = 10;
-        var y = 10;
-        var r = 10;
-        var step = 1;
-        var deltaT = 0;
-        var width = 0;
-        var height = 0;
-        var moveType = 1;
-        var mover = 0;
-        var stop = false;
         function anim() {
             if (moveType % 4 === 1) {
                 x--;
@@ -96,111 +107,76 @@
                 step++;
                 moveType++;
                 if (moveType % 4 === 1) {
-                    setLabel("move left")
+                    setLabel("move left");
                 } else {
                     if (moveType % 4 === 2) {
-                        setLabel("move up")
+                        setLabel("move up");
                     } else {
                         if (moveType % 4 === 3) {
-                            setLabel("move right")
+                            setLabel("move right");
                         } else {
-                            setLabel("move down")
+                            setLabel("move down");
                         }
                     }
                 }
             }
-            deltaT++;
 
-            if (x + r > width || y + r > height || x - r < 0 || y - r < 0 || stop) { // this means we ended our animation
-
-                draw(x, y); // draw the last frame, at required position
-                //document.getElementById('move').disabled = false;
+            if (x + r > width + xOffset || y + r > width + yOffset || x - r < 0 || y - r < 0 || stop) {
+                draw(x, y);
+                clearInterval(id);
 
             } else {
                 draw(x, y);
-                requestAnimationFrame(anim); // do it again
             }
         }
 
         move.onclick = e => {
-
-            x = width / 2;
-            y = height / 2;
+            x = height / 2 + xOffset;
+            y = width / 2 + yOffset;
             step = 1;
             r = 10;
-            deltaT = 0;
             mover = 0;
             moveType = 1;
-            console.log(x)
+            console.log(x);
             console.log(y);
             if (move.value === "reload") {
-                setLabel("reload click")
+                setLabel("reload click");
                 draw(x, y);
                 move.value = "start";
                 stop = true;
+                clearInterval(id);
             } else {
                 move.value = "reload";
-                setLabel("start click")
+                setLabel("start click");
                 stop = false;
-                anim();
+                clearInterval(id);
+                id = setInterval(anim, 5);
             }
-
         }
-        let close = document.getElementById("close")
-        let work = document.getElementById("work")
+
         close.onclick = e => {
             work.style.visibility = 'hidden';
             setLabel("close click");
-
             $.ajax({
-                url: 'gettext',
+                url: '/gettext',
             }).done(function (data) {
-                rightLabel.value = data
+                rightLabel.value = data;
             });
         }
 
-        let play = document.getElementById("play")
         play.onclick = e => {
             work.style.visibility = 'visible';
             $.ajax({
-                url: 'clear',
+                url: '/clear',
             }).done(function (data) {
-                rightLabel.value = data
+                rightLabel.value = data;
             });
-            setLabel("play click")
-        }
-
-        // OP's code
-        var canvas = document.getElementById("canvas");
-        var animArea = document.getElementById("anim");
-        width = animArea.clientWidth;
-        height = animArea.clientHeight;
-        canvas.width = animArea.clientWidth;
-        canvas.height = animArea.clientHeight;
-        canvas.style.width = animArea.clientWidth + "px";
-        canvas.style.height = animArea.clientHeight + "px";
-        console.log(canvas.style.height);
-        x = width / 2;
-        y = height / 2;
-        console.log(width);
-        console.log(height);
-        getCanvasImage(canvas);
-        var ctx = canvas.getContext("2d");
-
-        function circle(x, y, r) {
-            ctx.beginPath();
-            ctx.arc(x, y, r, 0, Math.PI * 2, true);
-            ctx.fill();
-        }
-
-        function clear() {
-            ctx.clearRect(0, 0, width, height);
+            setLabel("play click");
         }
 
         function draw(x, y) {
-            clear(width, height);
-            ctx.fillStyle = "green";
-            circle(x, y, r);
+            animation.style.top = x + "px";
+            animation.style.left = y + "px";
         }
 
         draw(x, y);

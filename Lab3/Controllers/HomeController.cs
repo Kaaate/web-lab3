@@ -56,11 +56,6 @@ namespace Lab3.Controllers
                 new StreamReader(fullFileName);
             var text = streamWriter.ReadToEnd();
             streamWriter.Close();
-
-            StreamWriter s =
-                new StreamWriter(fullFileName);
-            s.Write("");
-            s.Close();
             return text;
         }
 
